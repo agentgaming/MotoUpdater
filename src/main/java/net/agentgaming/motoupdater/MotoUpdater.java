@@ -20,8 +20,8 @@ public class MotoUpdater {
     public static void main(final String[] args) {
         cmds = new ServerCommand();
 
-        String name = "default";
-        if(args.length > 0) name = args[0];
+        Integer port = 8116;
+        if(args.length > 0) port = Integer.parseInt(args[0]);
 
         File runningDir = new File("./server/");
         File jarDir = new File("./jars/");
@@ -33,11 +33,11 @@ public class MotoUpdater {
 
         HttpServer server = null;
         try {
-            server = HttpServer.create(new InetSocketAddress(8116), 0);
+            server = HttpServer.create(new InetSocketAddress(port), 0);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        server.createContext("/" + name, new Server());
+        server.createContext("/", new Server());
         server.setExecutor(null);
         server.start();
     }
