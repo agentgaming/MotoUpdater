@@ -1,18 +1,16 @@
 package net.agentgaming.motoupdater;
 
-import com.sun.net.httpserver.HttpServer;
-
 import java.io.File;
 import java.io.IOException;
-import java.net.InetSocketAddress;
 
 public class ServerRunner implements Runnable {
     private Process process;
     private ServerConfig cfg;
 
     private File runningDir;
-
     private ProcMon procMon;
+
+    private boolean hasStarted = false;
 
     public ServerRunner(ServerConfig cfg) {
         this.cfg = cfg;
@@ -27,12 +25,12 @@ public class ServerRunner implements Runnable {
     }
 
     public void start() {
-        if(cfg.shouldRestart()) {
+        if(cfg.shouldRestart() || !hasStarted) {
+            hasStarted = true;
             try {
-                //TODO: Change this.
-                String jarName = cfg.getJar().getFile();
+                File jarName = cfg.getJar();
                 if(jarName != null) {
-                    process = Runtime.getRuntime().exec("java -jar " + MotoUpdater.getJarDir().getAbsolutePath() + jarName, null, runningDir);
+                    process = Runtime.getRuntime().exec("java -jar " + jarName.getAbsolutePath(), null, runningDir);
                     procMon = new ProcMon(process, this);
                 } else {
                     System.out.println("Jar does not exist on disk!");
