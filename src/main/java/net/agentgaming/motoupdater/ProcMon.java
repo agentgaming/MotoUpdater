@@ -3,12 +3,14 @@ package net.agentgaming.motoupdater;
 public class ProcMon implements Runnable {
 
     private final Process _proc;
+    private final ServerRunner r;
     private volatile boolean _complete = false;
 
     public boolean isRunning() { return !_complete; }
 
-    public ProcMon(Process proc) {
+    public ProcMon(Process proc, ServerRunner r) {
         this._proc = proc;
+        this.r = r;
     }
 
     public void run() {
@@ -17,11 +19,11 @@ public class ProcMon implements Runnable {
         } catch (InterruptedException e) {
         }
         _complete = true;
-        MotoUpdater.start();
+        r.start();
     }
 
-    public static ProcMon create(Process proc) {
-        ProcMon procMon = new ProcMon(proc);
+    public static ProcMon create(Process proc, ServerRunner r) {
+        ProcMon procMon = new ProcMon(proc, r);
         Thread t = new Thread(procMon);
         t.start();
         return procMon;

@@ -7,10 +7,10 @@ import java.io.IOException;
 import java.net.URLDecoder;
 import java.util.HashMap;
 
-public class Server implements HttpHandler {
+public class APIServer implements HttpHandler {
     //0 = invalid cmd, 1 = invalid key, 2 = invalid args, 3 = success
     public void handle(HttpExchange t) throws IOException {
-        //Get args
+        //get args
         HashMap<String,String> args = new HashMap<String, String>();
         for (String pair : t.getRequestURI().getQuery().split("&")) {
             int idx = pair.indexOf("=");
@@ -23,18 +23,19 @@ public class Server implements HttpHandler {
                 out200(t, "1");
                 return;
             } else {
-                String cmd = args.get("key");
+                String cmd = args.get("cmd");
+                Integer port = Integer.parseInt(args.get("port"));
                 if(cmd == "stop") {
-                    MotoUpdater.stop();
+                    MotoUpdater.getServer(port).stop();
                     out200(t, "3");
                     return;
                 } else if(cmd == "start") {
-                    MotoUpdater.start();
+                    MotoUpdater.getServer(port).start();
                     out200(t, "3");
                     return;
                 } else if(cmd == "restart") {
-                    MotoUpdater.stop();
-                    MotoUpdater.start();
+                    MotoUpdater.getServer(port).stop();
+                    MotoUpdater.getServer(port).start();
                     out200(t, "3");
                     return;
                 } else {
