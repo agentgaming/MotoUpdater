@@ -42,6 +42,9 @@ public class MotoUpdater {
     public static void main(final String[] args) {
         Gson gson = new Gson();
 
+        File jarDir = new File("./jars/");
+        jarDir.mkdirs();
+
         HttpServer server = null;
         try {
             server = HttpServer.create(new InetSocketAddress(8116), 0);
@@ -52,7 +55,7 @@ public class MotoUpdater {
         server.setExecutor(null);
         server.start();
 
-        //Get this servers external ip
+        //Get our external ip
         InputStream is = null;
         try {
             is = new URL("http://checkip.amazonaws.com/").openStream();
@@ -64,10 +67,11 @@ public class MotoUpdater {
             IOUtils.closeQuietly(is);
         }
 
+        //Request a list of servers for this ip
         String out = "";
         try {
             List<NameValuePair> params = new ArrayList<>();
-            params.add(new BasicNameValuePair("addr", Integer.toString(externalIP)));
+            params.add(new BasicNameValuePair("addr", externalIP));
             out = doPost("https://agentgaming.net/api/get_plugin.php", params);
         } catch (Exception e) {
             e.printStackTrace();
@@ -78,8 +82,7 @@ public class MotoUpdater {
             System.exit(0);
         }
 
-        ArrayList<ServerConfig> servers = new ArrayList<>();
-
+        //Start your engines!
         for(String s : out.split(",")) {
             String jsonString = new String(Base64.decodeBase64(s));
             ServerConfig c = gson.fromJson(jsonString, ServerConfig.class);

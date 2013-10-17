@@ -20,10 +20,7 @@ public class ServerRunner implements Runnable {
 
     @Override
     public void run() {
-        File runningDir = new File("./server/");
-        File jarDir = new File("./jars/");
-
-        jarDir.mkdirs();
+        File runningDir = new File("./server/" + cfg.getName() + "/");
         runningDir.mkdirs();
 
         start();

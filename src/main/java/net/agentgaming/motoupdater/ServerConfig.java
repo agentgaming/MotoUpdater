@@ -1,7 +1,14 @@
 package net.agentgaming.motoupdater;
 
+import org.apache.commons.codec.digest.DigestUtils;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
 
 public class ServerConfig {
     private String name;
@@ -27,8 +34,25 @@ public class ServerConfig {
         return restart;
     }
 
-    public URL getJar() throws MalformedURLException {
-        return new URL(jar);
+    public File getJar() {
+        File f = null;
+
+        try {
+            String hash = DigestUtils.md5Hex(new URL(jar).openStream());
+            f = new File(MotoUpdater.getJarDir() + "/" + hash + ".jar");
+
+            if(!f.exists()) {
+                ReadableByteChannel rbc = null;
+                rbc = Channels.newChannel(new URL(jar).openStream());
+                FileOutputStream fos = new FileOutputStream(f);
+                fos.getChannel().transferFrom(rbc, 0, 1 << 24);
+                fos.close();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return f;
     }
 
     public String[] getMaps() {
