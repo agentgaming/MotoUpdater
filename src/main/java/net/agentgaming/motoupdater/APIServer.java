@@ -19,21 +19,21 @@ public class APIServer implements HttpHandler {
 
         //run cmd
         if(args.containsKey("cmd") && args.containsKey("key")) {
-            if(MotoUpdater.getKey() != args.get("key")) {
+            if(!MotoUpdater.getKey().equals(args.get("key"))) {
                 out200(t, "1");
                 return;
             } else {
                 String cmd = args.get("cmd");
                 Integer port = Integer.parseInt(args.get("port"));
-                if(cmd == "stop") {
+                if(cmd.equals("stop")) {
                     MotoUpdater.getServer(port).stop();
                     out200(t, "3");
                     return;
-                } else if(cmd == "start") {
+                } else if(cmd.equals("start")) {
                     MotoUpdater.getServer(port).start();
                     out200(t, "3");
                     return;
-                } else if(cmd == "restart") {
+                } else if(cmd.equals("restart")) {
                     MotoUpdater.getServer(port).stop();
                     MotoUpdater.getServer(port).start();
                     out200(t, "3");

@@ -30,14 +30,14 @@ import java.util.HashMap;
 
 public class MotoUpdater {
     private static File jarDir;
-    private static final String key = "thisisakey";
+    private static final String key = "key1245";
 
     private static String username = "jxBkqvpe0seZhgfavRqB";
     private static String password = "RXaCcuuQcIUFZuVZik9K";
 
     private static String externalIP;
 
-    private static HashMap<Integer, ServerRunner> servers = new HashMap<Integer, ServerRunner>();
+    private static HashMap<Integer, ServerRunner> servers;
 
     public static void main(final String[] args) {
         Gson gson = new Gson();
@@ -45,12 +45,15 @@ public class MotoUpdater {
         File jarDir = new File("./jars/");
         jarDir.mkdirs();
 
+        servers = new HashMap<Integer, ServerRunner>();
+
         HttpServer server = null;
         try {
             server = HttpServer.create(new InetSocketAddress(8116), 0);
         } catch (IOException e) {
             e.printStackTrace();
         }
+
         server.createContext("/", new APIServer());
         server.setExecutor(null);
         server.start();
@@ -68,11 +71,13 @@ public class MotoUpdater {
         }
 
         //Request a list of servers for this ip
+        System.out.println("Searching for servers...");
+
         String out = "";
         try {
             List<NameValuePair> params = new ArrayList<>();
             params.add(new BasicNameValuePair("addr", externalIP));
-            out = doPost("https://agentgaming.net/api/get_plugin.php", params);
+            out = doPost("https://agentgaming.net/api/get_servers.php", params);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -83,7 +88,10 @@ public class MotoUpdater {
         }
 
         //Start your engines!
+        System.out.println("Found servers! Running them now...");
+
         for(String s : out.split(",")) {
+            if(s.trim() == "" || s.trim() == "0") break;
             String jsonString = new String(Base64.decodeBase64(s));
             ServerConfig c = gson.fromJson(jsonString, ServerConfig.class);
             ServerRunner r = new ServerRunner(c);

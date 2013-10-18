@@ -39,7 +39,7 @@ public class ServerConfig {
 
         try {
             String hash = DigestUtils.md5Hex(new URL(jar).openStream());
-            f = new File(MotoUpdater.getJarDir() + "/" + hash + ".jar");
+            f = new File(MotoUpdater.getJarDir(), hash + ".jar");
 
             if(!f.exists()) {
                 ReadableByteChannel rbc = null;

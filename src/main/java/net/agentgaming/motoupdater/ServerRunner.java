@@ -25,6 +25,8 @@ public class ServerRunner implements Runnable {
     }
 
     public void start() {
+        System.out.println("Running config: '" + cfg.getName() + "' on port '" + cfg.getPort() + "'");
+
         if(cfg.shouldRestart() || !hasStarted) {
             hasStarted = true;
             try {
@@ -42,6 +44,8 @@ public class ServerRunner implements Runnable {
     }
 
     public void stop() {
+        System.out.println("Stopping config: '" + cfg.getName() + "' on port '" + cfg.getPort() + "'");
+
         if(procMon.isRunning()) {
             try {
                 process.getOutputStream().write("stop\n".getBytes());
@@ -54,9 +58,13 @@ public class ServerRunner implements Runnable {
                 e.printStackTrace();
             }
         }
+
+        System.out.println("Stopped config: '" + cfg.getName() + "' on port '" + cfg.getPort() + "'");
     }
 
     private void sendCommand(String cmd) {
+        System.out.println("Running cmd: '" + cmd + "' on config:: '" + cfg.getName() + "' on port '" + cfg.getPort() + "'");
+
         try {
             process.getOutputStream().write((cmd + "\n").getBytes());
         } catch (IOException e) {
