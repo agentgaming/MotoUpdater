@@ -59,16 +59,25 @@ public class ServerRunner implements Runnable {
             }
             try {
                 BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
+                int i = 0;
                 String line = null;
                 while(procMon.isRunning() && (line = in.readLine()) != null) {
                     System.out.println(line);
+                    Thread.sleep(1);
+                    if(i == 5000) {
+                        stop();
+                        return;
+                    }
                 }
                 process.waitFor();
+                process.destroy();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
             }
+
+            start();
         }
 
         System.out.println("Stopped config: '" + cfg.getName() + "' on port '" + cfg.getPort() + "'");
@@ -86,7 +95,7 @@ public class ServerRunner implements Runnable {
             e.printStackTrace();
         }
 
-        System.out.println("Stopping config: '" + cfg.getName() + "' on port '" + cfg.getPort() + "'");
+        System.out.println("Killed config: '" + cfg.getName() + "' on port '" + cfg.getPort() + "'; will not restart");
     }
 
     private void sendCommand(String cmd) {

@@ -19,6 +19,7 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.BasicHttpContext;
 
 import java.io.InputStream;
+import java.net.BindException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +40,8 @@ public class MotoUpdater {
 
     private static HashMap<Integer, ServerRunner> servers;
 
+    private static HttpServer server = null;
+
     public static void main(final String[] args) {
         Gson gson = new Gson();
 
@@ -47,9 +50,11 @@ public class MotoUpdater {
 
         servers = new HashMap<Integer, ServerRunner>();
 
-        HttpServer server = null;
         try {
             server = HttpServer.create(new InetSocketAddress(8116), 0);
+        } catch (BindException be) {
+            System.out.println("Cannot start API server, stopping. Make sure port 8116 is free!");
+            System.exit(0);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -99,6 +104,19 @@ public class MotoUpdater {
             Thread t = new Thread(r);
             t.start();
         }
+
+        Thread shutdown = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                //Forcibly kill all minecraft servers; we don't want ghost processes
+                for(ServerRunner r : MotoUpdater.getServers()) {
+                    r.getProcess().destroy();
+                }
+                MotoUpdater.getAPIServer().stop(1);
+            }
+        });
+
+        Runtime.getRuntime().addShutdownHook(shutdown);
     }
 
     public static File getJarDir() {
@@ -115,6 +133,18 @@ public class MotoUpdater {
 
     public static ServerRunner getServer(Integer port) {
         return servers.get(port);
+    }
+
+    public static ArrayList<ServerRunner> getServers() {
+        ArrayList<ServerRunner> srvs = new ArrayList<ServerRunner>();
+        for(Integer i : servers.keySet()) {
+            srvs.add(servers.get(i));
+        }
+        return srvs;
+    }
+
+    public static HttpServer getAPIServer() {
+        return server;
     }
 
     private static String doPost(String url, List<NameValuePair> params) throws Exception {
