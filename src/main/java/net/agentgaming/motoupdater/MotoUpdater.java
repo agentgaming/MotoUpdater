@@ -42,7 +42,7 @@ public class MotoUpdater {
     public static void main(final String[] args) {
         Gson gson = new Gson();
 
-        File jarDir = new File("./jars/");
+        jarDir = new File("./jars/");
         jarDir.mkdirs();
 
         servers = new HashMap<Integer, ServerRunner>();

@@ -1,7 +1,6 @@
 package net.agentgaming.motoupdater;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 
 public class ServerRunner implements Runnable {
     private Process process;
@@ -18,12 +17,14 @@ public class ServerRunner implements Runnable {
 
     @Override
     public void run() {
-        File runningDir = new File("./server/" + cfg.getName() + "/");
+        runningDir = new File("./server/" + cfg.getName() + "/");
         runningDir.mkdirs();
 
         start();
     }
 
+
+    //TODO: Get stop to work and get running directory to work correctly
     public void start() {
         System.out.println("Running config: '" + cfg.getName() + "' on port '" + cfg.getPort() + "'");
 
@@ -32,7 +33,7 @@ public class ServerRunner implements Runnable {
             try {
                 File jarName = cfg.getJar();
                 if(jarName != null) {
-                    process = Runtime.getRuntime().exec("java -jar " + jarName.getAbsolutePath(), null, runningDir);
+                    process = Runtime.getRuntime().exec("java -server -Xmx" + cfg.getXmx() +" -Xms" + cfg.getXms() + " -jar " + jarName.getAbsolutePath() + " nogui -port=" + cfg.getPort(), null, runningDir);
                     procMon = new ProcMon(process, this);
                 } else {
                     System.out.println("Jar does not exist on disk!");
@@ -48,13 +49,24 @@ public class ServerRunner implements Runnable {
 
         if(procMon.isRunning()) {
             try {
-                process.getOutputStream().write("stop\n".getBytes());
+                BufferedWriter out = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
+
+                out.write("stop\n");
+                out.flush();
+                out.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
             try {
+                BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
+                String line = null;
+                while(procMon.isRunning() && (line = in.readLine()) != null) {
+                    System.out.println(line);
+                }
                 process.waitFor();
             } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }
@@ -62,11 +74,30 @@ public class ServerRunner implements Runnable {
         System.out.println("Stopped config: '" + cfg.getName() + "' on port '" + cfg.getPort() + "'");
     }
 
+    public void kill() {
+        System.out.println("Killing config: '" + cfg.getName() + "' on port '" + cfg.getPort() + "'");
+
+        if(procMon.isRunning()) {
+            process.destroy();
+        }
+        try {
+            process.waitFor();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("Stopping config: '" + cfg.getName() + "' on port '" + cfg.getPort() + "'");
+    }
+
     private void sendCommand(String cmd) {
         System.out.println("Running cmd: '" + cmd + "' on config:: '" + cfg.getName() + "' on port '" + cfg.getPort() + "'");
 
         try {
-            process.getOutputStream().write((cmd + "\n").getBytes());
+            BufferedWriter out = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
+
+            out.write(cmd + "\n");
+            out.flush();
+            out.close();
         } catch (IOException e) {
             e.printStackTrace();
         }

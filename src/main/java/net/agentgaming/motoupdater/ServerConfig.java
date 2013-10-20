@@ -14,6 +14,8 @@ public class ServerConfig {
     private String name;
     private String ip;
     private Integer port;
+    private String xms;
+    private String xmx;
     private Boolean restart;
     private String jar;
     private String[] maps;
@@ -28,6 +30,14 @@ public class ServerConfig {
 
     public Integer getPort() {
         return port;
+    }
+
+    public String getXms() {
+        return xms;
+    }
+
+    public String getXmx() {
+        return xmx;
     }
 
     public Boolean shouldRestart() {
