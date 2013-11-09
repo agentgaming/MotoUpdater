@@ -33,10 +33,6 @@ public class ServerRunner implements Runnable {
             try {
                 File jarName = cfg.getJar();
                 if (jarName != null) {
-                    for(String map : cfg.getMaps()) {
-                        MotoUpdater.downloadMap(map, cfg);
-                    }
-
                     process = Runtime.getRuntime().exec("java -server -Xmx" + cfg.getXmx() + " -Xms" + cfg.getXms() + " -jar " + jarName.getAbsolutePath() + " nogui -port=" + cfg.getPort(), null, runningDir);
                     procMon = new ProcMon(process, this);
                 } else {
@@ -100,6 +96,12 @@ public class ServerRunner implements Runnable {
         }
 
         System.out.println("Killed config: '" + cfg.getName() + "' on port '" + cfg.getPort() + "'; will not restart");
+    }
+
+    public void updateMaps() {
+        for(String map : cfg.getMaps()) {
+            MotoUpdater.downloadMap(map, cfg);
+        }
     }
 
     private void sendCommand(String cmd) {

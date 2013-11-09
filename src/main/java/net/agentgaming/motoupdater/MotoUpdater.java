@@ -109,6 +109,16 @@ public class MotoUpdater {
             String jsonString = new String(Base64.decodeBase64(s));
             ServerConfig c = gson.fromJson(jsonString, ServerConfig.class);
             ServerRunner r = new ServerRunner(c);
+
+            //Download maps here so they don't interfere or redownload
+            System.out.println("Downloading maps for: " + c.getName());
+            File runningDir = new File("./server/" + c.getName() + "/");
+            runningDir.mkdirs();
+
+            for(String map : c.getMaps()) {
+                MotoUpdater.downloadMap(map, c);
+            }
+
             addServer(c.getPort(), r);
             Thread t = new Thread(r);
             t.start();
@@ -184,7 +194,11 @@ public class MotoUpdater {
             List<NameValuePair> params = new ArrayList<>();
             params.add(new BasicNameValuePair("id", map));
             out = Base64.decodeBase64(doPost("https://agentgaming.net/api/get_map.php", params));
+
             File mapZip = new File(mapDir.getAbsolutePath() + "/" + map + ".zip");
+            if(mapZip.exists()) mapZip.delete();
+            mapZip.createNewFile();
+
             IOUtils.write(out, new FileOutputStream(mapZip));
             extractZip(mapZip, dir);
         } catch (Exception e) {
