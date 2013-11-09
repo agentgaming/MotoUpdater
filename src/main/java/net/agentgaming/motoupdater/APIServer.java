@@ -42,6 +42,10 @@ public class APIServer implements HttpHandler {
                     MotoUpdater.getServer(port).kill();
                     out200(t, "3");
                     return;
+                } else if (cmd.equals("updatemaps")) {
+                    MotoUpdater.getServer(port).updateMaps();
+                    out200(t, "3");
+                    return;
                 } else {
                     out200(t, "2");
                     return;
