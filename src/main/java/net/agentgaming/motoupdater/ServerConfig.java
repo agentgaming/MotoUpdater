@@ -5,7 +5,6 @@ import org.apache.commons.codec.digest.DigestUtils;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
@@ -51,7 +50,7 @@ public class ServerConfig {
             String hash = DigestUtils.md5Hex(new URL(jar).openStream());
             f = new File(MotoUpdater.getJarDir(), hash + ".jar");
 
-            if(!f.exists()) {
+            if (!f.exists()) {
                 ReadableByteChannel rbc = null;
                 rbc = Channels.newChannel(new URL(jar).openStream());
                 FileOutputStream fos = new FileOutputStream(f);

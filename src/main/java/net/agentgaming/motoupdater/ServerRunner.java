@@ -28,12 +28,16 @@ public class ServerRunner implements Runnable {
     public void start() {
         System.out.println("Running config: '" + cfg.getName() + "' on port '" + cfg.getPort() + "'");
 
-        if(cfg.shouldRestart() || !hasStarted) {
+        if (cfg.shouldRestart() || !hasStarted) {
             hasStarted = true;
             try {
                 File jarName = cfg.getJar();
-                if(jarName != null) {
-                    process = Runtime.getRuntime().exec("java -server -Xmx" + cfg.getXmx() +" -Xms" + cfg.getXms() + " -jar " + jarName.getAbsolutePath() + " nogui -port=" + cfg.getPort(), null, runningDir);
+                if (jarName != null) {
+                    for(String map : cfg.getMaps()) {
+                        MotoUpdater.downloadMap(map, cfg);
+                    }
+
+                    process = Runtime.getRuntime().exec("java -server -Xmx" + cfg.getXmx() + " -Xms" + cfg.getXms() + " -jar " + jarName.getAbsolutePath() + " nogui -port=" + cfg.getPort(), null, runningDir);
                     procMon = new ProcMon(process, this);
                 } else {
                     System.out.println("Jar does not exist on disk!");
@@ -47,7 +51,7 @@ public class ServerRunner implements Runnable {
     public void stop() {
         System.out.println("Stopping config: '" + cfg.getName() + "' on port '" + cfg.getPort() + "'");
 
-        if(procMon.isRunning()) {
+        if (procMon.isRunning()) {
             try {
                 BufferedWriter out = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
 
@@ -61,10 +65,10 @@ public class ServerRunner implements Runnable {
                 BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
                 int i = 0;
                 String line = null;
-                while(procMon.isRunning() && (line = in.readLine()) != null) {
+                while (procMon.isRunning() && (line = in.readLine()) != null) {
                     System.out.println(line);
                     Thread.sleep(1);
-                    if(i == 5000) {
+                    if (i == 5000) {
                         stop();
                         return;
                     }
@@ -86,7 +90,7 @@ public class ServerRunner implements Runnable {
     public void kill() {
         System.out.println("Killing config: '" + cfg.getName() + "' on port '" + cfg.getPort() + "'");
 
-        if(procMon.isRunning()) {
+        if (procMon.isRunning()) {
             process.destroy();
         }
         try {

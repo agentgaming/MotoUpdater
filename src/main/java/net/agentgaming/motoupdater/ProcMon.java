@@ -6,7 +6,9 @@ public class ProcMon implements Runnable {
     private final ServerRunner r;
     private volatile boolean _complete = false;
 
-    public boolean isRunning() { return !_complete; }
+    public boolean isRunning() {
+        return !_complete;
+    }
 
     public ProcMon(Process proc, ServerRunner r) {
         this._proc = proc;
