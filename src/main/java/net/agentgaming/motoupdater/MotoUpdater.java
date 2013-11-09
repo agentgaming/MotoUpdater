@@ -49,6 +49,31 @@ public class MotoUpdater {
     private static HttpServer server = null;
 
     public static void main(final String[] args) {
+        Thread cmdListener = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+
+                try {
+                    while(!in.readLine().equalsIgnoreCase("stop")) { }
+
+                    //Stop command was run
+                    in.close();
+                    System.exit(0);
+
+                    //Stop everything gracefully
+                    for (ServerRunner r : MotoUpdater.getServers()) {
+                        r.stop();
+                    }
+                    MotoUpdater.getAPIServer().stop(1);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    System.exit(0);
+                }
+            }
+        });
+        cmdListener.start();
+
         Gson gson = new Gson();
 
         jarDir = new File("./jars/");
