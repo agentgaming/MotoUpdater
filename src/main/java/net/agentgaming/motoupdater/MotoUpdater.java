@@ -57,15 +57,12 @@ public class MotoUpdater {
                 try {
                     while(!in.readLine().equalsIgnoreCase("stop")) { }
 
-                    //Stop command was run
-                    in.close();
-                    System.exit(0);
-
                     //Stop everything gracefully
                     for (ServerRunner r : MotoUpdater.getServers()) {
                         r.stop();
                     }
-                    MotoUpdater.getAPIServer().stop(1);
+
+                    System.exit(0);
                 } catch (IOException e) {
                     e.printStackTrace();
                     System.exit(0);
@@ -156,6 +153,7 @@ public class MotoUpdater {
                 for (ServerRunner r : MotoUpdater.getServers()) {
                     r.getProcess().destroy();
                 }
+
                 MotoUpdater.getAPIServer().stop(1);
             }
         });
