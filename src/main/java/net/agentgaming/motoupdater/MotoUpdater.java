@@ -48,7 +48,7 @@ public class MotoUpdater {
         jarDir = new File("./jars/");
         jarDir.mkdirs();
 
-        servers = new HashMap<Integer, ServerRunner>();
+        servers = new HashMap<>();
 
         try {
             server = HttpServer.create(new InetSocketAddress(8116), 0);
